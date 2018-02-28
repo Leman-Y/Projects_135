@@ -25,23 +25,23 @@ int main()
 {
     int numbers;
     char symbols;
-    int sum=0;
-    int difference=0;
-    int total=0;
-    cin>>sum;
-    while(cin >> symbols >> numbers)
+    int sum=0;//initialize the sum
+    int difference=0;//initialize the difference
+    int total=0;//initialize the total
+    cin>>sum;//this line stores the first number in the text to the sum
+    while(cin >> symbols >> numbers)//loops through the operators and the numbers (disregards the first number but it is okay because it is store in sum)
      {
-       if (symbols == '+')
+       if (symbols == '+')//if the operator is a + sign then numbers get added to the sum
        {
          sum+=numbers;
        }
-       else if (symbols == '-')
+       else if (symbols == '-')//if the operator is a - then the number is subtracted and stored in the difference
        {
          difference-=numbers;
        }
      }
-     total=sum+difference;
-     cout<<total<<endl;
+     total=sum+difference;//the total combines the sum and difference
+     cout<<total<<endl;//prints the total
 
   return 0;
 }

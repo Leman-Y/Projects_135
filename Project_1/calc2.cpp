@@ -22,23 +22,23 @@ int main()
 {
 int numbers;
 char symbols;
-int sum=0;
-cin>>sum;
-while(cin >> symbols >> numbers )
+int sum=0;//initialize the sum
+cin>>sum;//first number stored in the sum
+while(cin >> symbols >> numbers )//loops through the text stores the numbers as ints and operators as characters
   {
-   if (symbols == '+')
+   if (symbols == '+')//if there is a plus sign the next number are added to the sum
    {
      sum+=numbers;
    }
-   else if (symbols == '-')
+   else if (symbols == '-')//if there is a minus sign then the next number is subtracted from the sum;
    {
     sum-=numbers;
    }
-   else if (symbols == ';')
+   else if (symbols == ';')//if there is a semicolon then the program prints the sum of that line
    {
      cout<<sum<<endl;
-     sum=numbers;
+     sum=numbers;//resets the sum to loop through the next line and store the new numbers in it which are then added or subtracted based on the operator next to them
    }
   }
-  cout<<sum<<endl;
+  cout<<sum<<endl;//prints out the sum in the last line
 }
