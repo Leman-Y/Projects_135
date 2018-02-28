@@ -14,11 +14,7 @@
 
 
 #include <iostream>
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-using namespace std;
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -27,45 +23,25 @@ using std::cin;
 
 int main()
 {
-    string s;
+    int numbers;
+    char symbols;
     int sum=0;
     int difference=0;
     int total=0;
-    int temp=0;
-    int i=0;
-    int numbers[100]={0};
-    string symbols[100]={""};
-    string myData[100]={""};
-    while(cin >> s)
-    {
-      myData[i]+=s;
-      i++;
-    }
-    int string_length=i;
-    for (int i=0; i<=(string_length)/2;i++)
-    {
-      temp=atoi(myData[2*i].c_str());
-      numbers[i]=temp;
-    }
-    for (int i=0;i<(string_length)/2;i++)
-    {
-      symbols[i+1]+=myData[2*i+1];
-    }
-    for (int i=0;i<=(string_length)/2;i++)
-    {
-      if (i==0)
-      {
-        sum+=numbers[0];
-      }
-     else if (symbols[i]=="+")
-      {
-        sum+=numbers[i];
-      }
-     else if (symbols[i]=="-")
-      {
-        difference-=numbers[i];//difference by value of number in numbers
-      }
-      total=sum+difference;
-    }
+    cin>>sum;
+    while(cin >> symbols >> numbers)
+     {
+       if (symbols == '+')
+       {
+         sum+=numbers;
+       }
+       else if (symbols == '-')
+       {
+         difference-=numbers;
+       }
+     }
+     total=sum+difference;
      cout<<total<<endl;
+
+  return 0;
 }
