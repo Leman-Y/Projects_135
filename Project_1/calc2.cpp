@@ -13,11 +13,32 @@
 //4
 
 #include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdlib>
 
 using std::string;
 using std::cout;
 using std::endl;
 using std::cin;
+int main()
+{
+int numbers;
+char symbols;
+int sum=0;
+cin>>sum;
+while(cin >> symbols >> numbers )
+  {
+   if (symbols == '+')
+   {
+     sum+=numbers;
+   }
+   else if (symbols == '-')
+   {
+    sum-=numbers;
+   }
+   else if (symbols == ';')
+   {
+     cout<<sum<<endl;
+     sum=numbers;
+   }
+  }
+  cout<<sum<<endl;
+}
