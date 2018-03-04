@@ -1,17 +1,3 @@
-//Write an even better calculator program calc3.cpp that can understand squared numbers. We are going to use a simplified notation X^ to mean X2. For example, 10^ + 7 - 51^ should mean 102 + 7 − 512.
-//
-//Example:
-//When reading input file formulas.txt
-
-//5^;
-//1000 + 6^ - 5^ + 1;
-//the program should report:
-
-//$ ./calc3 < formulas.txt
-//25
-//1012
-//A hint:
-//To take into account ^, don’t add or subtract new numbers right away after reading them. Instead, remember the number, read the next operator and if it is a ^, square the remembered number, then add or subtract it.
 
 #include <iostream>
 
@@ -20,10 +6,36 @@ using std::cout;
 using std::endl;
 using std::cin;
 
-
-int main() {
-    string s;
-    while(cin >> s) { // While the reading operation is a success
-        cout << s << endl;  // print the read word
+int main()
+{
+  int numbers;
+  char symbols;
+  char old_op='+';//assume the first number is always positive
+  int total=0;//initialize the total
+  cin>>numbers;//read in the first number
+  while(cin >> symbols)//read in the first symbol before the number
+  {
+    if (symbols == '^')//if the symbol is a carrot...
+    {
+      numbers=numbers*numbers;//square the number
+      cin>>symbols;//read in the symbol next to it
     }
+   if (old_op == '-')//if the symbol before the number is the operator-...
+    {
+      total-=numbers;//subtract from total
+    }
+   if (old_op == '+')//if the symbol before the number is the operator +.....
+    {
+      total+=numbers;//add to the total
+    }
+    old_op=symbols;//the old operator is equal to the the new
+    cin >> numbers;//next number is read
+    if (old_op == ';')//if the next symbol is a ;...
+    {
+      cout<<total<<endl;//Then the total is printed
+      total=0;//total is then reinitialized
+      old_op='+';//the first operator is reinitialized back to plus with the assumtion that the number in the next row will always be positive
+    }
+  }
+  return 0;
 }
