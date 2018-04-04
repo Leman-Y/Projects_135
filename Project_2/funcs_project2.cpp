@@ -164,15 +164,15 @@ bool is_replace_phoneme(string s1, string s2)//this function checks whether the 
   {
     return false;
   }
-  int count=0;//initialize the count
+  int diffpho=0;//initialize the count
   for (int i=0;i<phonemecount1;i++)
   {
     if (getNthPhoneme(s1,i)!=getNthPhoneme(s2,i))//whenever the phonemes are the same...
     {
-      count++;// increment the count
+      diffpho++;// increment the count
     }
   }
-  if (count==1)//if only one change occured,that means the pronunciation will be the same if one phoneme is replaced
+  if (diffpho==1)//if only one change occured,that means the pronunciation will be the same if one phoneme is replaced
   {
     return true;
   }
@@ -187,15 +187,15 @@ bool is_add_phoneme(string s1, string s2)
   {
     return false;
   }
-  int count=0;
+  int samepho=0;
   for (int i=0;i<phonemecount1;i++)
   {
     if (getNthPhoneme(s1,i)==getNthPhoneme(s2,i) || getNthPhoneme(s1,i)==getNthPhoneme(s2,i+1))
     {
-      count++;
+      samepho++;
     }
   }
-  if (count==numOfPhonemes(s1))
+  if (samepho==numOfPhonemes(s1))
   {
     return true;
   }
@@ -210,15 +210,15 @@ bool is_remove_phoneme(string s1, string s2)
   {
     return false;
   }
-  int count=0;
+  int samepho=0;
   for (int i=0;i<phonemecount2;i++)
   {
     if (getNthPhoneme(s2,i)==getNthPhoneme(s1,i) || getNthPhoneme(s2,i)==getNthPhoneme(s1,i+1))
     {
-      count++;
+      samepho++;
     }
   }
-  if (count==numOfPhonemes(s2))
+  if (samepho==numOfPhonemes(s2))
   {
     return true;
   }
