@@ -224,4 +224,34 @@ bool is_remove_phoneme(string s1, string s2)
   }
   return false;
 }
+////////////////////////////////////Second way of add remove phoneme
+// bool check_add_remove(string s1,string s2)//this function checks whether the first pronunciation
+// //is the same as the second one if one phoneme is removed from the second
+// {
+//   int s2count=numOfPhonemes(s2);
+//   int s1count=numOfPhonemes(s1);
+//   string emptys1="";
+//   string emptys2="";
+//   for (int i=0;i<s1count;i++)
+//   {
+//     emptys1+=getNthPhoneme(s1,i);//fill up the first empty string with the original without spaces
+//   }
+//   for (int k=0;k<s2count;k++)
+//   {
+//     if (getNthPhoneme(s1,k)==getNthPhoneme(s2,k))//the phoneme is the same add it to the empty string
+//      {
+//        emptys2+=getNthPhoneme(s2,k);
+//      }
+//     else if ((k+1)<s1count && getNthPhoneme(s1,k)!=getNthPhoneme(s2,k))//if they are not then add k+1 phoheme
+//     {
+//       emptys2+=getNthPhoneme(s2,k+1);
+//     }
+//
+//   }
+//   if (emptys1==emptys2)//if the second string ends up being equal to the original, then that means only one phoneme needed to be removed
+//   {
+//     return true;
+//   }
+//   return false;
+// }
 //////////////Program ends
