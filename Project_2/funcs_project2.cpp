@@ -192,10 +192,11 @@ bool is_add_phoneme(string s1, string s2)
   {
     if (getNthPhoneme(s1,i)==getNthPhoneme(s2,i) || getNthPhoneme(s1,i)==getNthPhoneme(s2,i+1))
     {
-      samepho++;
+      samepho++;//increment for every identical phoneme
     }
   }
-  if (samepho==numOfPhonemes(s1))
+  if (samepho==numOfPhonemes(s1))//if the word being compared has the identical phonemes of the original
+  //then it has one extra
   {
     return true;
   }
