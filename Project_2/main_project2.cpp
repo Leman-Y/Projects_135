@@ -57,10 +57,11 @@ int main()
 	    cout << "Add Phoneme      : " << addwords << "\n";
 	    cout << "Remove Phoneme   : " << removewords << "\n";
 	    cout << "Replace Phoneme  : " << replacewords << "\n";
+    }
+    else
+    {
+      cout<<"Not Found"<<endl;
+    }
   }
-  else
-  {
-    cout<<"Not Found"<<endl;
-  }
-}
+  return 0;
 }
