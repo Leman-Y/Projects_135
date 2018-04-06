@@ -34,7 +34,6 @@ int main()
         if (str[0] == ';')//if the first character is the semi colon, start new iteration
           continue;
         splitOnSpace(str,word, pronunciation);//splits the word from its pronunciation
-        int phonemecount=numOfPhonemes(pronunciation);
         if (inputwordpro==pronunciation && word!=upword)
         {
           identicalwords+=word+" ";
