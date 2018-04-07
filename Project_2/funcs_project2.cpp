@@ -156,7 +156,7 @@ string getNthPhoneme(string pronunciation, int n)//gets the desired phoneme from
 bool is_replace_phoneme(string s1, string s2)//this function checks whether the first pronunciation
 //is the same as the second one if one phoneme is replaced
 {
-  //get the number of phonemes(it doesnt matter which one because....
+  //get the number of phonemes
   //for replace phonemes to work..both words must have the same number of phonemes
   int phonemecount1=numOfPhonemes(s1);
   int phonemecount2=numOfPhonemes(s2);
@@ -196,14 +196,14 @@ bool is_add_phoneme(string s1, string s2)
     }
   }
   if (samepho==numOfPhonemes(s1))//if the word being compared has the identical phonemes of the original
-  //then it has one extra
+  //then it has one extra phoneme
   {
     return true;
   }
   return false;
 }
 ////////////////////////////////////////////////////
-bool is_remove_phoneme(string s1, string s2)
+bool is_remove_phoneme(string s1, string s2)//opposite of is_add_phoneme s1 and s2 switched
 {
   int phonemecount1=numOfPhonemes(s1);
   int phonemecount2=numOfPhonemes(s2);
