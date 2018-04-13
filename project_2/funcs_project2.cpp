@@ -181,6 +181,7 @@ bool is_replace_phoneme(string s1, string s2)//this function checks whether the 
 /////////////////////////////////////////////////////////////////////////////////
 bool is_add_phoneme(string s1, string s2)
 {
+
   int phonemecount1=numOfPhonemes(s1);
   int phonemecount2=numOfPhonemes(s2);
   if (phonemecount1!=phonemecount2-1)
@@ -239,7 +240,7 @@ bool is_remove_phoneme(string s1, string s2)//opposite of is_add_phoneme s1 and 
 //   }
 //   for (int k=0;k<s2count;k++)
 //   {
-//     if (getNthPhoneme(s1,k)==getNthPhoneme(s2,k))//the phoneme is the same add it to the empty string
+//     if (getNthPhoneme(s1,k)==getNthPhoneme(s2,k))//If the phoneme is the same add it to the empty string
 //      {
 //        emptys2+=getNthPhoneme(s2,k);
 //      }

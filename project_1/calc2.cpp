@@ -18,27 +18,28 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::cin;
+
 int main()
 {
 int numbers;
 char symbols;
-int sum=0;//initialize the sum
-cin>>sum;//first number stored in the sum
+int total=0;//initialize the total
+cin>>total;//first number stored in the total
 while(cin >> symbols >> numbers )//loops through the text stores the numbers as ints and operators as characters
   {
    if (symbols == '+')//if there is a plus sign the next number are added to the sum
    {
-     sum+=numbers;
+     total+=numbers;
    }
    else if (symbols == '-')//if there is a minus sign then the next number is subtracted from the sum;
    {
-    sum-=numbers;
+    total-=numbers;
    }
-   else if (symbols == ';')//if there is a semicolon then the program prints the sum of that line
+   else if (symbols == ';')//if there is a semicolon then the program  prints the sum of that line
    {
-     cout<<sum<<endl;
-     sum=numbers;//resets the sum to loop through the next line and store the new numbers in it which are then added or subtracted based on the operator next to them
+     cout<<total<<endl;
+     total=numbers;//resets the sum to loop through the next line and store the new numbers in it which are then added or subtracted based on the operator next to them
    }
   }
-  cout<<sum<<endl;//prints out the sum in the last line
+  cout<<total<<endl;//prints out the sum in the last line
 }
