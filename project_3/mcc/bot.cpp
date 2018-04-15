@@ -59,7 +59,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 	else
   {
 		////if its just one column and row away, zig zag towards it
-	 if (area.inspect(row+1,col+1)==DEBRIS)
+		if (area.inspect(row+1,col+1)==DEBRIS)
 		{
 			switch (rand() % 2)
 			{
@@ -99,11 +99,11 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					return LEFT;
 			}
 		}
-		//////////////////////////////////////////////////////////
+		///current case ends, next case:
 		//when a Debris is near either horizontally or vertically, go straight towards it
 		for (int j=COLS;j>1;j--)//these for loops check how many columns  and rows the robot is away from the debris
 		{
-					//each if statement corresponds to the proper way the robot should zig zag towards the debris
+			//each if statement corresponds to the proper way the robot should move towards the debris
 			if (area.inspect(row,col+j)==DEBRIS)
 			{
 					return RIGHT;
