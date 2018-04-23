@@ -9,128 +9,198 @@
 
 using namespace std;
 
+
 const int MAX_ROBOT_NUM = 50;
-
 int NUM;          // to remember number or robots
-int ROWS, COLS;   // map dimensions
-
-// int row_Destination(MAX_ROBOT_NUM)={};
-//
-// int col_Destination(MAX_ROBOT_NUM)={};
-// bool robot_needs_location[MAX_ROBOT_NUM]={false};
-
-
+int ROWS, COLS;  // map dimensions
+bool working=false;   //to input
+bool broken=true;
+//array to store robot id's and determine whether they are working or not
+bool robot_status[50];
+//global variable to make the robots cycle up,down left or right instead of moving chaotically
+bool cycle=false;
 /* Initialization procedure, called when the game starts: */
 void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 {
 	NUM = num;   // save the number of robots and the map dimensions
 	ROWS = rows;
 	COLS = cols;
-
+	for(int i=0;i<50;i++)
+	{
+		//make all robots working at the start
+		robot_status[i]=working;
+	}
 	log << "Start!" << endl;
 }
-
+//finds the broken robots row and column coardinates and then stores them
+Loc findBrokenRobot(Loc loc,Area &area)
+{
+	Loc def;
+	for (int i=0;i<NUM;i++)
+	{
+		if (robot_status[i]==broken)
+		{
+			//return the coardinates
+			def.r = area.locate(i).r;
+			def.c = area.locate(i).c;
+			return def;
+		}
+	}
+	//if no broken robot is found then it returns non existant coardinates
+	def.r=-1;
+	def.c =-1;
+	return def;
+}
+//compares Locs coardinates
+bool locEquals(Loc thisL, Loc otherL){
+	if (thisL.r == otherL.r && thisL.c == otherL.c){
+		return true;
+	}
+	return false;
+}
+//finds the  debris that is d units away,in a circle
+string DebrisIsNear(int d,Loc loc,Area &area)
+{
+	int row=loc.r;
+	int col=loc.c;
+	if (area.inspect(row,col+d)==DEBRIS)
+	{
+		return "RIGHT";
+	}
+	if (area.inspect(row+d,col)==DEBRIS)
+	{
+		return "DOWN";
+	}
+	if (area.inspect(row-d,col)==DEBRIS)
+	{
+		return "UP";
+	}
+	if (area.inspect(row,col-d)==DEBRIS)
+	{
+		return "LEFT";
+	}
+	//one coardinate up,down,left, or right and d units away
+	if (area.inspect(row+1,col+d)==DEBRIS ||area.inspect(row+1,col-d)==DEBRIS )
+	{
+		return "ONEDOWN";
+	}
+	if (area.inspect(row+d,col+1)==DEBRIS || area.inspect(row-d,col+1)==DEBRIS)
+	{
+		return "ONERIGHT";
+	}
+	if (area.inspect(row-1,col+d)==DEBRIS || area.inspect(row-1,col-d)==DEBRIS)
+	{
+		return "ONEUP";
+	}
+	if (area.inspect(row+d,col-1)==DEBRIS || area.inspect(row-d,col-1)==DEBRIS)
+	{
+		return "ONELEFT";
+	}
+	return "NOTHING";
+}
 /* Deciding robot's next move */
 Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
-
 	if (area.inspect(row, col) == DEBRIS)
+	{
 		return COLLECT;
-	//if the debris is either one square away, go to it
-  else if (area.inspect(row+1,col)==DEBRIS)
-  {
-    return DOWN;
-  }
-  else if (area.inspect(row, col+1)==DEBRIS)
-  {
-    return RIGHT;
-  }
-  else if (area.inspect(row-1, col)==DEBRIS)
-  {
-    return UP;
-  }
-  else if (area.inspect(row,col-1)==DEBRIS)
-  {
-    return LEFT;
-  }
-	//next set	of statements check for DEBRIS that is farther away
-	else
-  {
-		////if its just one column and row away, zig zag towards it
-		if (area.inspect(row+1,col+1)==DEBRIS)
+	}
+// 		//Fix a robot if it breaks down
+		Loc broken = findBrokenRobot(loc,area);
+		if (loc.r == broken.r-1 && loc.c == broken.c)
 		{
-			switch (rand() % 2)
-			{
-				case 0:
-					return DOWN;
-				case 1:
-					return RIGHT;
-			}
+			return REPAIR_DOWN;
 		}
-		else if (area.inspect(row+1,col-1)==DEBRIS)
+		if (loc.r == broken.r+1 && loc.c == broken.c)
 		{
-			switch (rand() % 2)
-			{
-				case 0:
-					return DOWN;
-				case 1:
-					return LEFT;
-			}
+			return REPAIR_UP;
 		}
-		else if (area.inspect(row-1,col+1)==DEBRIS)
+		if (loc.r == broken.r && loc.c == broken.c-1)
 		{
-			switch (rand() % 2)
-			{
-				case 0:
-					return UP;
-				case 1:
-					return RIGHT;
-			}
+			return REPAIR_RIGHT;
 		}
-		else if (area.inspect(row-1,col-1)==DEBRIS)
+		if (loc.r == broken.r && loc.c == broken.c+1)
 		{
-			switch (rand() % 2)
-			{
-				case 0:
-					return UP;
-				case 1:
-					return LEFT;
-			}
+			return REPAIR_LEFT;
 		}
-		///current case ends, next case:
-		//when a Debris is near either horizontally or vertically, go straight towards it
-		for (int j=COLS;j>1;j--)//these for loops check how many columns  and rows the robot is away from the debris
+//inspect area around the robot, find a Debris that is near and go towards it
+//this matches the brute force but can be improved
+		for(int i=0;i<40;i++)
 		{
-			//each if statement corresponds to the proper way the robot should move towards the debris
-			if (area.inspect(row,col+j)==DEBRIS)
+			if (DebrisIsNear(i,loc,area)=="RIGHT")
 			{
-					return RIGHT;
+				return RIGHT;
 			}
-		}
-		///////////////////////////////////
-		for (int k=COLS;k>1;k--)
-		{
-			if(area.inspect(row,col-k)==DEBRIS)
-			{
-					return LEFT;
-			}
-		}
-		///////////////////////////////
-		for (int i=ROWS;i>1;i--)
-		{
-			if(area.inspect(row+i,col)==DEBRIS)
+			if (DebrisIsNear(i,loc,area)=="DOWN")
 			{
 				return DOWN;
 			}
-		}
-		///////////////////////////////
-		for (int x=ROWS;x>1;x--)
-		{
-			if(area.inspect(row-x,col)==DEBRIS)
+			if (DebrisIsNear(i,loc,area)=="UP")
+ 		 	{
+ 				return UP;
+ 			}
+ 			if (DebrisIsNear(i,loc,area)=="LEFT")
+ 			{
+ 				return LEFT;
+ 			}
+			if (DebrisIsNear(i,loc,area)=="ONEDOWN")
+ 			{
+ 				return DOWN;
+ 			}
+			if (DebrisIsNear(i,loc,area)=="ONEUP")
 			{
 				return UP;
+			}
+			if (DebrisIsNear(i,loc,area)=="ONELEFT")
+			{
+				return LEFT;
+			}
+			if (DebrisIsNear(i,loc,area)=="ONERIGHT")
+			{
+				return RIGHT;
+			}
+		}
+		//When the above conditions are not satisfied...
+		//robot will move LEFT or RIGHT if there are more rows than columns
+		if (ROWS >= COLS)
+		{
+			if (cycle==false)
+			{
+				if (col==0)
+				{
+					cycle=true;
+				}
+				return LEFT;
+			}
+			if (cycle==true)
+			{
+				if (col==COLS-1)
+				{
+					cycle=false;
+				}
+				return RIGHT;
+			}
+		}
+		//robot will move  UP or DOWN if there are more columns than rows
+		if (COLS > ROWS)
+		{
+			if (cycle==false)
+			{
+				if (row==0)
+				{
+					cycle=true;
+				}
+				return UP;
+			}
+			if (cycle==true)
+			{
+				if (row==ROWS-1)
+				{
+					cycle=false;
+				}
+				return DOWN;
 			}
 		}
 		//if not at a debris field, move randomly:
@@ -145,14 +215,13 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			default:
 				return DOWN;
 		}
-	}
 }
-
 void onRobotMalfunction(int id, Loc loc, Area &area, ostream &log)
 {
 	log << "Robot " << id << " is damaged." << endl;
+	//make it known in the array that the current robot ID is broken
+	robot_status[id]=broken;
 }
-
 void onClockTick(int time, ostream &log)
 {
 	if (time % 100 == 0) log << time << " ";
