@@ -141,6 +141,11 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 	int row = loc.r; // current row and column
 	int col = loc.c;
 
+	//collects debris
+	 if (area.inspect(row, col) == DEBRIS)
+	 {
+		 return COLLECT;
+	 }
 Loc broke = findBrokenRobot(loc,area);
 //make sure there is more than one robot and
 	if (NUM>1 && danger==true)
@@ -205,11 +210,7 @@ Loc broke = findBrokenRobot(loc,area);
 	 	}
 	 }
 
-	 //collects debris
-	 	if (area.inspect(row, col) == DEBRIS)
-	 	{
-	 		return COLLECT;
-	 	}
+
 	//only execute this if there is more than one robot
 	if(NUM>1)
 	{
