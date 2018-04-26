@@ -31,7 +31,7 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	ROWS = rows;
 	COLS = cols;
 	//chance for malfunction is over 2 % take extra care to repair the robots
-	if (mpr>=0.0002)
+	if (mpr>=0.0001)
 	{
 		danger=true;
 	}
@@ -140,41 +140,12 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
+
+Loc broke = findBrokenRobot(loc,area);
 //make sure there is more than one robot and
 	if (NUM>1 && danger==true)
 	{
 		//if the chance for malfunction is high, prioritize moving towards broken robot
-		Loc broken = findBrokenRobot(loc,area);
-		for (int f=2;f<40;f++)
-		{
-			if ((loc.r == broken.r-f && loc.c == broken.c) && (broken.r!=-1 && broken.c!=-1))
-			{
-				return DOWN;
-			}
-			if (loc.r == broken.r+f && loc.c == broken.c && (broken.r!=-1 && broken.c!=-1))
-			{
-				return UP;
-			}
-			if (loc.r == broken.r && loc.c == broken.c-f && (broken.r!=-1 && broken.c!=-1))
-			{
-				return RIGHT;
-			}
-			if (loc.r == broken.r && loc.c == broken.c+f && (broken.r!=-1 && broken.c!=-1))
-			{
-				return LEFT;
-			}
-	 	}
-	 }
-//collects debris
-	if (area.inspect(row, col) == DEBRIS)
-	{
-		return COLLECT;
-	}
-
-	//only execute this if there is more than one robot
-	if(NUM>1)
-	{
-		//if two robots are in together, tell them to move spread apart
 		for (int id_2=0;id_2<50;id_2++)
 		{
 			if (botNextToBot(id,id_2,loc,area)=="BotUP")
@@ -186,6 +157,67 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					robot_status[id_2]=working;
 					return REPAIR_DOWN;
 				}
+			}
+			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
+			{
+				//always prioritize repairing(if needed) before separating
+				if (robot_status[id_2]==broken)
+				{
+					robot_status[id_2]=working;
+					return REPAIR_UP;
+				}
+			}
+			if (botNextToBot(id,id_2,loc,area)=="BotLEFT")
+			{
+				if (robot_status[id_2]==broken)
+				{
+					robot_status[id_2]=working;
+					return REPAIR_RIGHT;
+				}
+			}
+			if (botNextToBot(id,id_2,loc,area)=="BotRIGHT")
+			{
+				if (robot_status[id_2]==broken)
+				{
+					robot_status[id_2]=working;
+					return REPAIR_LEFT;
+				}
+			}
+		}
+		for (int f=2;f<40;f++)
+		{
+			if ((loc.r == broke.r-f && loc.c == broke.c) && (broke.r!=-1 && broke.c!=-1))
+			{
+				return DOWN;
+			}
+			if (loc.r == broke.r+f && loc.c == broke.c && (broke.r!=-1 && broke.c!=-1))
+			{
+				return UP;
+			}
+			if (loc.r == broke.r && loc.c == broke.c-f && (broke.r!=-1 && broke.c!=-1))
+			{
+				return RIGHT;
+			}
+			if (loc.r == broke.r && loc.c == broke.c+f && (broke.r!=-1 && broke.c!=-1))
+			{
+				return LEFT;
+			}
+	 	}
+	 }
+
+	 //collects debris
+	 	if (area.inspect(row, col) == DEBRIS)
+	 	{
+	 		return COLLECT;
+	 	}
+	//only execute this if there is more than one robot
+	if(NUM>1)
+	{
+		//if two robots are in together, tell them to move spread apart
+		for (int id_2=0;id_2<50;id_2++)
+		{
+			if (botNextToBot(id,id_2,loc,area)=="BotUP")
+			{
 				//if robot is next to robot, try to find a different debris to go to
 				for (int i=0;i<40;i++)
 				{
@@ -219,11 +251,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
 			{
 				//always prioritize repairing(if needed) before separating
-				if (robot_status[id_2]==broken)
-				{
-					robot_status[id_2]=working;
-					return REPAIR_UP;
-				}
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="LEFT")
@@ -255,11 +282,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 ////////////////////////////////////////////////////
 			if (botNextToBot(id,id_2,loc,area)=="BotLEFT")
 			{
-				if (robot_status[id_2]==broken)
-				{
-					robot_status[id_2]=working;
-					return REPAIR_RIGHT;
-				}
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="DOWN")
@@ -291,11 +313,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 //////////////////////////////////////////////////////
 			if (botNextToBot(id,id_2,loc,area)=="BotRIGHT")
 			{
-				if (robot_status[id_2]==broken)
-				{
-					robot_status[id_2]=working;
-					return REPAIR_LEFT;
-				}
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="RIGHT")
