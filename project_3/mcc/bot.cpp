@@ -12,12 +12,16 @@ using namespace std;
 const int MAX_ROBOT_NUM = 50;
 int NUM;          // to remember number or robots
 int ROWS, COLS;  // map dimensions
-bool working=false;   //to input
+
+bool working=false;   //to determine whether a robot can fine or broken down
 bool broken=true;
+
 //array to store robot id's and determine whether they are working or not
 bool robot_status[50];
 //global variable to make the robots cycle up,down left or right(depending on ROWS AND COLS) instead of moving chaotically
 bool cycle=false;
+//to notify if chance for malfunction is too high
+bool danger=false;
 
 
 /* Initialization procedure, called when the game starts: */
@@ -26,6 +30,11 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	NUM = num;   // save the number of robots and the map dimensions
 	ROWS = rows;
 	COLS = cols;
+	//chance for malfunction is over 2 % take extra care to repair the robots
+	if (mpr>0.02)
+	{
+		danger=true;
+	}
 	for(int i=0;i<50;i++)
 	{
 		//make all robots working at the start
@@ -81,18 +90,6 @@ Loc findBrokenRobot(Loc loc,Area &area)
 	return def;
 }
 
-
-
-//compares Locs coardinates
-bool locEquals(Loc thisL, Loc otherL){
-	if (thisL.r == otherL.r && thisL.c == otherL.c)
-	{
-		return true;
-	}
-	return false;
-}
-
-
 //finds the  debris that is d units away,in a circle
 string DebrisIsNear(int d,Loc loc,Area &area)
 {
@@ -142,39 +139,51 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 	int row = loc.r; // current row and column
 	int col = loc.c;
 
+	if (NUM>1 && danger==true)
+	{
+		//if the chance for malfunction is high, prioritize moving towards broken robot
+		Loc broken = findBrokenRobot(loc,area);
+		for (int f=2;f<40;f++)
+		{
+			if ((loc.r == broken.r-f && loc.c == broken.c) && (broken.r!=-1 && broken.c!=-1))
+			{
+				return DOWN;
+			}
+			if (loc.r == broken.r+f && loc.c == broken.c && (broken.r!=-1 && broken.c!=-1))
+			{
+				return UP;
+			}
+			if (loc.r == broken.r && loc.c == broken.c-f && (broken.r!=-1 && broken.c!=-1))
+			{
+				return RIGHT;
+			}
+			if (loc.r == broken.r && loc.c == broken.c+f && (broken.r!=-1 && broken.c!=-1))
+			{
+				return LEFT;
+			}
+	 	}
+	 }
+
 	if (area.inspect(row, col) == DEBRIS)
 	{
 		return COLLECT;
 	}
- 		//Fix a robot if it breaks down
-		// Loc broken = findBrokenRobot(loc,area);
-		// if (loc.r == broken.r-1 && loc.c == broken.c)
-		// {
-		// 	return REPAIR_DOWN;
-		// }
-		// if (loc.r == broken.r+1 && loc.c == broken.c)
-		// {
-		// 	return REPAIR_UP;
-		// }
-		// if (loc.r == broken.r && loc.c == broken.c-1)
-		// {
-		// 	return REPAIR_RIGHT;
-		// }
-		// if (loc.r == broken.r && loc.c == broken.c+1)
-		// {
-		// 	return REPAIR_LEFT;
-		// }
-		////////////////////////////////////////////////////////
+
+	//only execute this if there is more than one robot
+	if(NUM>1)
+	{
+		//if two robots are in together, tell them to move spread apart
 		for (int id_2=0;id_2<50;id_2++)
 		{
 			if (botNextToBot(id,id_2,loc,area)=="BotUP")
 			{
+				//if the robot next to it is broken, repair it
 				if (robot_status[id_2]==broken)
 				{
+					//make it known to the array that the robot is now working
 					robot_status[id_2]=working;
 					return REPAIR_DOWN;
 				}
-				log<<" UP  ";
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="UP")
@@ -189,6 +198,18 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return RIGHT;
 					}
+					if (DebrisIsNear(i,loc,area)=="ONEUP")
+					{
+						return UP;
+					}
+					if (DebrisIsNear(i,loc,area)=="ONELEFT")
+					{
+						return LEFT;
+					}
+					if (DebrisIsNear(i,loc,area)=="ONERIGHT")
+					{
+						return RIGHT;
+					}
 				}
 			}
 			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
@@ -198,7 +219,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					robot_status[id_2]=working;
 					return REPAIR_UP;
 				}
-				log<<" down   ";
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="LEFT")
@@ -213,6 +233,18 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return DOWN;
 					}
+					if (DebrisIsNear(i,loc,area)=="ONEDOWN")
+		 			{
+		 				return DOWN;
+		 			}
+					if (DebrisIsNear(i,loc,area)=="ONELEFT")
+					{
+						return LEFT;
+					}
+					if (DebrisIsNear(i,loc,area)=="ONERIGHT")
+					{
+						return RIGHT;
+					}
 				}
 			}
 
@@ -223,7 +255,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					robot_status[id_2]=working;
 					return REPAIR_RIGHT;
 				}
-				log<<"LEFT   ";
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="DOWN")
@@ -238,6 +269,18 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 		 			{
 		 				return LEFT;
 		 			}
+					if (DebrisIsNear(i,loc,area)=="ONEDOWN")
+		 			{
+		 				return DOWN;
+		 			}
+					if (DebrisIsNear(i,loc,area)=="ONEUP")
+					{
+						return UP;
+					}
+					if (DebrisIsNear(i,loc,area)=="ONELEFT")
+					{
+						return LEFT;
+					}
 				}
 			}
 			if (botNextToBot(id,id_2,loc,area)=="BotRIGHT")
@@ -247,7 +290,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					robot_status[id_2]=working;
 					return REPAIR_LEFT;
 				}
-				log<<"RIGHT  ";
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="RIGHT")
@@ -262,9 +304,23 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 		 		 	{
 		 				return UP;
 		 			}
+					if (DebrisIsNear(i,loc,area)=="ONEDOWN")
+		 			{
+		 				return DOWN;
+		 			}
+					if (DebrisIsNear(i,loc,area)=="ONEUP")
+					{
+						return UP;
+					}
+					if (DebrisIsNear(i,loc,area)=="ONERIGHT")
+					{
+						return RIGHT;
+					}
 				}
 			}
 		}
+	}
+
 
 //inspect area around the robot, find a Debris that is near and go towards it
 //this matches the brute force but can be improved
@@ -286,23 +342,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
  			{
  				return LEFT;
  			}
-			///one turn for it to be in a stright line
-			// if (DebrisIsNear(i,loc,area)=="ONEDOWN")
- 			// {
- 			// 	return DOWN;
- 			// }
-			// if (DebrisIsNear(i,loc,area)=="ONEUP")
-			// {
-			// 	return UP;
-			// }
-			// if (DebrisIsNear(i,loc,area)=="ONELEFT")
-			// {
-			// 	return LEFT;
-			// }
-			// if (DebrisIsNear(i,loc,area)=="ONERIGHT")
-			// {
-			// 	return RIGHT;
-			// }
+
 		}
 //if a robot is next to another robot and that robot is not broken....
 		//When the above conditions are not satisfied...
