@@ -49,6 +49,7 @@ string botNextToBot(int id,int id_2,Loc loc,Area &area)
 {
 	if (id_2!=id)
 	{
+		//notify whether the robot next to the other robot is either up,down,left, or right
 		if (area.locate(id_2).r==area.locate(id).r+1  && area.locate(id_2).c==area.locate(id).c)
 		{
 			return "BotUP";
@@ -76,6 +77,7 @@ Loc findBrokenRobot(Loc loc,Area &area)
 	Loc def;
 	for (int i=0;i<NUM;i++)
 	{
+		//finds the robot thats broken
 		if (robot_status[i]==broken)
 		{
 			//return the coardinates
@@ -95,7 +97,7 @@ string DebrisIsNear(int d,Loc loc,Area &area)
 {
 	int row=loc.r;
 	int col=loc.c;
-
+//if there is a debri either horizontally or vertically, go straight to it
 	if (area.inspect(row,col+d)==DEBRIS)
 	{
 		return "RIGHT";
@@ -138,7 +140,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
-
+//make sure there is more than one robot and
 	if (NUM>1 && danger==true)
 	{
 		//if the chance for malfunction is high, prioritize moving towards broken robot
@@ -163,7 +165,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			}
 	 	}
 	 }
-
+//collects debris 
 	if (area.inspect(row, col) == DEBRIS)
 	{
 		return COLLECT;
@@ -184,6 +186,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					robot_status[id_2]=working;
 					return REPAIR_DOWN;
 				}
+				//if robot is next to robot, try to find a different debris to go to
 				for (int i=0;i<40;i++)
 				{
 					if (DebrisIsNear(i,loc,area)=="UP")
@@ -212,8 +215,10 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					}
 				}
 			}
+////////////////////////////////////////////////////////
 			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
 			{
+				//always prioritize repairing(if needed) before separating
 				if (robot_status[id_2]==broken)
 				{
 					robot_status[id_2]=working;
@@ -247,7 +252,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					}
 				}
 			}
-
+////////////////////////////////////////////////////
 			if (botNextToBot(id,id_2,loc,area)=="BotLEFT")
 			{
 				if (robot_status[id_2]==broken)
@@ -283,6 +288,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					}
 				}
 			}
+//////////////////////////////////////////////////////
 			if (botNextToBot(id,id_2,loc,area)=="BotRIGHT")
 			{
 				if (robot_status[id_2]==broken)
@@ -320,10 +326,8 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			}
 		}
 	}
-
-
 //inspect area around the robot, find a Debris that is near and go towards it
-//this matches the brute force but can be improved
+//else move either up
 		for(int i=0;i<40;i++)
 		{
 			if (DebrisIsNear(i,loc,area)=="RIGHT")
@@ -342,10 +346,9 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
  			{
  				return LEFT;
  			}
-
 		}
-//if a robot is next to another robot and that robot is not broken....
-		//When the above conditions are not satisfied...
+//if neither a broken robot or debris can be found then
+		//robots will move in a non chaotic way to find any missing debris
 		//robot will move LEFT or RIGHT if there are more rows than columns
 		if (ROWS >= COLS)
 		{
