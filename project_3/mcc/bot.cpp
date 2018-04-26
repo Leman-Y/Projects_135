@@ -2,28 +2,21 @@
 //Course: Csci-135
 //Instructor: Genady Maryashi
 //Assignment: project 3
-
 #include <cstdlib>
 #include <iostream>
 #include "bot.h"
-
 using namespace std;
-
 const int MAX_ROBOT_NUM = 50;
 int NUM;          // to remember number or robots
 int ROWS, COLS;  // map dimensions
-
 bool working=false;   //to determine whether a robot can fine or broken down
 bool broken=true;
-
 //array to store robot id's and determine whether they are working or not
 bool robot_status[50];
 //global variable to make the robots cycle up,down left or right(depending on ROWS AND COLS) instead of moving chaotically
 bool cycle=false;
 //to notify if chance for malfunction is too high
 bool danger=false;
-
-
 /* Initialization procedure, called when the game starts: */
 void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 {
@@ -42,8 +35,6 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	}
 	log << "Start!" << endl;
 }
-
-
 ///////checks to see if a robot is next to a robot
 string botNextToBot(int id,int id_2,Loc loc,Area &area)
 {
@@ -69,8 +60,6 @@ string botNextToBot(int id,int id_2,Loc loc,Area &area)
 	}
 	return "NONE";
 }
-
-
 //finds the broken robots row and column coardinates and then stores them
 Loc findBrokenRobot(Loc loc,Area &area)
 {
@@ -91,7 +80,6 @@ Loc findBrokenRobot(Loc loc,Area &area)
 	def.c =-1;
 	return def;
 }
-
 //finds the  debris that is d units away,in a circle
 string DebrisIsNear(int d,Loc loc,Area &area)
 {
@@ -133,19 +121,16 @@ string DebrisIsNear(int d,Loc loc,Area &area)
 	}
 	return "NOTHING";
 }
-
-
 /* Deciding robot's next move */
 Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
-
 	//collects debris
-	 if (area.inspect(row, col) == DEBRIS)
-	 {
-		 return COLLECT;
-	 }
+	if (area.inspect(row, col) == DEBRIS)
+	{
+		return COLLECT;
+	}
 Loc broke = findBrokenRobot(loc,area);
 //make sure there is more than one robot and
 	if (NUM>1 && danger==true)
@@ -189,7 +174,6 @@ Loc broke = findBrokenRobot(loc,area);
 				}
 			}
 		}
-		//else  move towards the broken robot
 		for (int f=2;f<40;f++)
 		{
 			if ((loc.r == broke.r-f && loc.c == broke.c) && (broke.r!=-1 && broke.c!=-1))
@@ -208,11 +192,43 @@ Loc broke = findBrokenRobot(loc,area);
 			{
 				return LEFT;
 			}
+			//one row/column
+			if (loc.r == broke.r+1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+			{
+				return UP;
+			}
+			if (loc.r == broke.r-1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+			{
+				return DOWN;
+			}
+			if (loc.c == broke.c+1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+			{
+				return LEFT;
+			}
+			if (loc.c == broke.c-1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+			{
+				return RIGHT;
+			}
+			//two row column
+			if (loc.r == broke.r+2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+			{
+				return UP;
+			}
+			if (loc.r == broke.r-2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+			{
+				return DOWN;
+			}
+			if (loc.c == broke.c+2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+			{
+				return LEFT;
+			}
+			if (loc.c == broke.c-2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+			{
+				return RIGHT;
+			}
 	 	}
 	 }
-
-
-	//only execute this if there is more than one robot
+	////only execute this if there is more than one robot
 	if(NUM>1)
 	{
 		//if two robots are in together, tell them to move spread apart
@@ -349,22 +365,22 @@ Loc broke = findBrokenRobot(loc,area);
 //else move either up
 		for(int i=0;i<40;i++)
 		{
-			if (DebrisIsNear(i,loc,area)=="RIGHT")
-			{
-				return RIGHT;
-			}
 			if (DebrisIsNear(i,loc,area)=="DOWN")
 			{
 				return DOWN;
 			}
+			if (DebrisIsNear(i,loc,area)=="LEFT")
+ 			{
+ 				return LEFT;
+ 			}
 			if (DebrisIsNear(i,loc,area)=="UP")
  		 	{
  				return UP;
  			}
- 			if (DebrisIsNear(i,loc,area)=="LEFT")
- 			{
- 				return LEFT;
- 			}
+			if (DebrisIsNear(i,loc,area)=="RIGHT")
+			{
+				return RIGHT;
+			}
 		}
 //if neither a broken robot or debris can be found then
 		//robots will move in a non chaotic way to find any missing debris
