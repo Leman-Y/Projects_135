@@ -31,7 +31,7 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	ROWS = rows;
 	COLS = cols;
 	//chance for malfunction is over 2 % take extra care to repair the robots
-	if (mpr>0.02)
+	if (mpr>=0.0002)
 	{
 		danger=true;
 	}
@@ -165,7 +165,7 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			}
 	 	}
 	 }
-//collects debris 
+//collects debris
 	if (area.inspect(row, col) == DEBRIS)
 	{
 		return COLLECT;
