@@ -144,9 +144,8 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 	//collects debris
 	 if (area.inspect(row, col) == DEBRIS)
 	 {
-		return COLLECT;
+		 return COLLECT;
 	 }
-
 Loc broke = findBrokenRobot(loc,area);
 //make sure there is more than one robot and
 	if (NUM>1 && danger==true)
