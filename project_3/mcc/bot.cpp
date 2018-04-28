@@ -23,8 +23,8 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	NUM = num;   // save the number of robots and the map dimensions
 	ROWS = rows;
 	COLS = cols;
-	//chance for malfunction is over 2 % take extra care to repair the robots
-	if (mpr>=0.0001)
+	//chance for malfunction is over 40% take extra care to repair the robots
+	if (mpr>=0.4)
 	{
 		danger=true;
 	}
@@ -35,7 +35,7 @@ void onStart(int num, int rows, int cols, double mpr,Area &area, ostream &log)
 	}
 	log << "Start!" << endl;
 }
-///////checks to see if a robot is next to a robot
+///////function that checks to see if a robot is next to a robot and returns which side the robot is on
 string botNextToBot(int id,int id_2,Loc loc,Area &area)
 {
 	if (id_2!=id)
@@ -80,7 +80,7 @@ Loc findBrokenRobot(Loc loc,Area &area)
 	def.c =-1;
 	return def;
 }
-//finds the  debris that is d units away,in a circle
+//finds the  debris that is d units away,in a circle returns a string that tells the user which side the debris was found
 string DebrisIsNear(int d,Loc loc,Area &area)
 {
 	int row=loc.r;
@@ -126,23 +126,29 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
-	//collects debris
-	if (area.inspect(row, col) == DEBRIS)
+
+	if (danger==false)
 	{
-		return COLLECT;
+		//prioritize collecting debris over going to broken robots
+		if (area.inspect(row, col) == DEBRIS)
+		{
+			return COLLECT;
+		}
 	}
-Loc broke = findBrokenRobot(loc,area);
-//make sure there is more than one robot and
-	if (NUM>1 && danger==true)
+
+	Loc broke = findBrokenRobot(loc,area);
+	//make sure there is more than one robot and
+	if (NUM>1)
 	{
-		//if the chance for malfunction is high, prioritize moving towards broken robot
+		//if the robot next to another robot is broken, repair it
 		for (int id_2=0;id_2<50;id_2++)
 		{
 			if (botNextToBot(id,id_2,loc,area)=="BotUP")
 			{
-				//if the robot next to it is broken, repair it
+				//check for malfunction
 				if (robot_status[id_2]==broken)
 				{
+					//always prioritize repairing(if needed) before separating
 					//make it known to the array that the robot is now working
 					robot_status[id_2]=working;
 					return REPAIR_DOWN;
@@ -150,7 +156,7 @@ Loc broke = findBrokenRobot(loc,area);
 			}
 			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
 			{
-				//always prioritize repairing(if needed) before separating
+
 				if (robot_status[id_2]==broken)
 				{
 					robot_status[id_2]=working;
@@ -174,64 +180,77 @@ Loc broke = findBrokenRobot(loc,area);
 				}
 			}
 		}
-		for (int f=2;f<40;f++)
+	}
+	//move towards damaged robots
+		 if (NUM>1)
 		{
-			if ((loc.r == broke.r-f && loc.c == broke.c) && (broke.r!=-1 && broke.c!=-1))
+			for (int f=2;f<40;f++)
 			{
-				return DOWN;
-			}
-			if (loc.r == broke.r+f && loc.c == broke.c && (broke.r!=-1 && broke.c!=-1))
-			{
-				return UP;
-			}
-			if (loc.r == broke.r && loc.c == broke.c-f && (broke.r!=-1 && broke.c!=-1))
-			{
-				return RIGHT;
-			}
-			if (loc.r == broke.r && loc.c == broke.c+f && (broke.r!=-1 && broke.c!=-1))
-			{
-				return LEFT;
-			}
-			//one row/column
-			if (loc.r == broke.r+1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
-			{
-				return UP;
-			}
-			if (loc.r == broke.r-1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
-			{
-				return DOWN;
-			}
-			if (loc.c == broke.c+1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
-			{
-				return LEFT;
-			}
-			if (loc.c == broke.c-1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
-			{
-				return RIGHT;
-			}
-			//two row column
-			if (loc.r == broke.r+2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
-			{
-				return UP;
-			}
-			if (loc.r == broke.r-2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
-			{
-				return DOWN;
-			}
-			if (loc.c == broke.c+2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
-			{
-				return LEFT;
-			}
-			if (loc.c == broke.c-2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
-			{
-				return RIGHT;
+				if ((loc.r == broke.r-f && loc.c == broke.c) && (broke.r!=-1 && broke.c!=-1))
+				{
+					return DOWN;
+				}
+				if (loc.r == broke.r+f && loc.c == broke.c && (broke.r!=-1 && broke.c!=-1))
+				{
+					return UP;
+				}
+				if (loc.r == broke.r && loc.c == broke.c-f && (broke.r!=-1 && broke.c!=-1))
+				{
+					return RIGHT;
+				}
+				if (loc.r == broke.r && loc.c == broke.c+f && (broke.r!=-1 && broke.c!=-1))
+				{
+					return LEFT;
+				}
+				//one row/column
+				if (loc.r == broke.r+1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+				{
+					return UP;
+				}
+				if (loc.r == broke.r-1 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+				{
+					return DOWN;
+				}
+				if (loc.c == broke.c+1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+				{
+					return LEFT;
+				}
+				if (loc.c == broke.c-1 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+				{
+					return RIGHT;
+				}
+				//two row column
+				if (loc.r == broke.r+2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+				{
+					return UP;
+				}
+				if (loc.r == broke.r-2 && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+				{
+					return DOWN;
+				}
+				if (loc.c == broke.c+2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+				{
+					return LEFT;
+				}
+				if (loc.c == broke.c-2 && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+				{
+					return RIGHT;
+				}
 			}
 	 	}
-	 }
+	//this executes only after mpr is 40% or greater
+	if (danger==true)
+	{
+		//collect debris only after  robots are fixed
+		if (area.inspect(row, col) == DEBRIS)
+		{
+			return COLLECT;
+		}
+	}
 	////only execute this if there is more than one robot
 	if(NUM>1)
 	{
-		//if two robots are in together, tell them to move spread apart
+		//if two robots are clashed together, tell them to move spread apart
 		for (int id_2=0;id_2<50;id_2++)
 		{
 			if (botNextToBot(id,id_2,loc,area)=="BotUP")
@@ -425,19 +444,7 @@ Loc broke = findBrokenRobot(loc,area);
 				return DOWN;
 			}
 		}
-		//if not at a debris field, move randomly:
-		switch(rand() % 4)
-    {
-			case 0:
-				return LEFT;
-			case 1:
-				return RIGHT;
-			case 2:
-				return UP;
-			default:
-				return DOWN;
-		}
-}
+	}
 void onRobotMalfunction(int id, Loc loc, Area &area, ostream &log)
 {
 	log << "Robot " << id << " is damaged." << endl;
