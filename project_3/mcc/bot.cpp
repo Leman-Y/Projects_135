@@ -121,12 +121,14 @@ string DebrisIsNear(int d,Loc loc,Area &area)
 	}
 	return "NOTHING";
 }
+
+
+
 /* Deciding robot's next move */
 Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
 	int row = loc.r; // current row and column
 	int col = loc.c;
-
 	if (danger==false)
 	{
 		//prioritize collecting debris over going to broken robots
@@ -135,7 +137,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			return COLLECT;
 		}
 	}
-
 	Loc broke = findBrokenRobot(loc,area);
 	//make sure there is more than one robot and
 	if (NUM>1)
@@ -156,7 +157,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			}
 			if (botNextToBot(id,id_2,loc,area)=="BotDOWN")
 			{
-
 				if (robot_status[id_2]==broken)
 				{
 					robot_status[id_2]=working;
@@ -236,6 +236,28 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 				{
 					return RIGHT;
 				}
+				if (danger==true)
+				{
+					for (int d=3;d<40;d++)
+					{
+						if (loc.r == broke.r+d && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+						{
+							return UP;
+						}
+						if (loc.r == broke.r-d && (loc.c == broke.c+f || loc.c == broke.c-f) && (broke.r!=-1 && broke.c!=-1))
+						{
+							return DOWN;
+						}
+						if (loc.c == broke.c+d && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+						{
+							return LEFT;
+						}
+						if (loc.c == broke.c-d && (loc.r == broke.r+f || loc.r == broke.r-f)  && (broke.r!=-1 && broke.c!=-1))
+						{
+							return RIGHT;
+						}
+					}
+				}
 			}
 	 	}
 	//this executes only after mpr is 40% or greater
@@ -258,10 +280,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 				//if robot is next to robot, try to find a different debris to go to
 				for (int i=0;i<40;i++)
 				{
-					if (DebrisIsNear(i,loc,area)=="UP")
-		 		 	{
-		 				return UP;
-		 			}
 		 			if (DebrisIsNear(i,loc,area)=="LEFT")
 		 			{
 		 				return LEFT;
@@ -282,6 +300,10 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return RIGHT;
 					}
+					if (DebrisIsNear(i,loc,area)=="UP")
+		 		 	{
+		 				return UP;
+		 			}
 				}
 			}
 ////////////////////////////////////////////////////////
@@ -298,10 +320,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return RIGHT;
 					}
-					if (DebrisIsNear(i,loc,area)=="DOWN")
-					{
-						return DOWN;
-					}
 					if (DebrisIsNear(i,loc,area)=="ONEDOWN")
 		 			{
 		 				return DOWN;
@@ -313,6 +331,10 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					if (DebrisIsNear(i,loc,area)=="ONERIGHT")
 					{
 						return RIGHT;
+					}
+					if (DebrisIsNear(i,loc,area)=="DOWN")
+					{
+						return DOWN;
 					}
 				}
 			}
@@ -329,10 +351,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 		 		 	{
 		 				return UP;
 		 			}
-		 			if (DebrisIsNear(i,loc,area)=="LEFT")
-		 			{
-		 				return LEFT;
-		 			}
 					if (DebrisIsNear(i,loc,area)=="ONEDOWN")
 		 			{
 		 				return DOWN;
@@ -345,6 +363,10 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return LEFT;
 					}
+					if (DebrisIsNear(i,loc,area)=="LEFT")
+		 			{
+		 				return LEFT;
+		 			}
 				}
 			}
 //////////////////////////////////////////////////////
@@ -352,10 +374,6 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 			{
 				for (int i=0;i<40;i++)
 				{
-					if (DebrisIsNear(i,loc,area)=="RIGHT")
-					{
-						return RIGHT;
-					}
 					if (DebrisIsNear(i,loc,area)=="DOWN")
 					{
 						return DOWN;
@@ -376,29 +394,56 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 					{
 						return RIGHT;
 					}
+					if (DebrisIsNear(i,loc,area)=="RIGHT")
+					{
+						return RIGHT;
+					}
 				}
 			}
 		}
 	}
 //inspect area around the robot, find a Debris that is near and go towards it
-//else move either up
+//else move either up or down, left or right based on whether ROWS or COLS are smaller
 		for(int i=0;i<40;i++)
 		{
-			if (DebrisIsNear(i,loc,area)=="DOWN")
+			for (int j=0;j<40;j++)
 			{
-				return DOWN;
-			}
-			if (DebrisIsNear(i,loc,area)=="LEFT")
- 			{
- 				return LEFT;
- 			}
-			if (DebrisIsNear(i,loc,area)=="UP")
- 		 	{
- 				return UP;
- 			}
-			if (DebrisIsNear(i,loc,area)=="RIGHT")
-			{
-				return RIGHT;
+				if (area.inspect(row+i,col)==DEBRIS)
+				{
+					return DOWN;
+				}
+				if (area.inspect(row-i,col)==DEBRIS)
+				{
+					return UP;
+				}
+				if (area.inspect(row,col+i)==DEBRIS)
+				{
+					return RIGHT;
+				}
+				if (area.inspect(row,col-i)==DEBRIS)
+				{
+					return LEFT;
+				}
+				if (area.inspect(row+i,col)==DEBRIS)
+				{
+					return DOWN;
+				}
+				if (area.inspect(row+i,col+j)==DEBRIS || area.inspect(row+i,col-j)==DEBRIS)
+				{
+					return DOWN;
+				}
+				if (area.inspect(row-i,col+j)==DEBRIS || area.inspect(row-i,col-j)==DEBRIS)
+				{
+					return UP;
+				}
+				if (area.inspect(row+i,col+j)==DEBRIS || area.inspect(row-i,col+j)==DEBRIS)
+				{
+					return RIGHT;
+				}
+				if (area.inspect(row+i,col-j)==DEBRIS || area.inspect(row-i,col-j)==DEBRIS)
+				{
+					return LEFT;
+				}
 			}
 		}
 //if neither a broken robot or debris can be found then
