@@ -121,9 +121,6 @@ string DebrisIsNear(int d,Loc loc,Area &area)
 	}
 	return "NOTHING";
 }
-
-
-
 /* Deciding robot's next move */
 Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 {
@@ -406,44 +403,21 @@ Action onRobotAction(int id, Loc loc, Area &area, ostream &log)
 //else move either up or down, left or right based on whether ROWS or COLS are smaller
 		for(int i=0;i<40;i++)
 		{
-			for (int j=0;j<40;j++)
+			if (DebrisIsNear(i,loc,area)=="DOWN")
 			{
-				if (area.inspect(row+i,col)==DEBRIS)
-				{
-					return DOWN;
-				}
-				if (area.inspect(row-i,col)==DEBRIS)
-				{
-					return UP;
-				}
-				if (area.inspect(row,col+i)==DEBRIS)
-				{
-					return RIGHT;
-				}
-				if (area.inspect(row,col-i)==DEBRIS)
-				{
-					return LEFT;
-				}
-				if (area.inspect(row+i,col)==DEBRIS)
-				{
-					return DOWN;
-				}
-				if (area.inspect(row+i,col+j)==DEBRIS || area.inspect(row+i,col-j)==DEBRIS)
-				{
-					return DOWN;
-				}
-				if (area.inspect(row-i,col+j)==DEBRIS || area.inspect(row-i,col-j)==DEBRIS)
-				{
-					return UP;
-				}
-				if (area.inspect(row+i,col+j)==DEBRIS || area.inspect(row-i,col+j)==DEBRIS)
-				{
-					return RIGHT;
-				}
-				if (area.inspect(row+i,col-j)==DEBRIS || area.inspect(row-i,col-j)==DEBRIS)
-				{
-					return LEFT;
-				}
+				return DOWN;
+			}
+			if (DebrisIsNear(i,loc,area)=="LEFT")
+ 			{
+ 				return LEFT;
+ 			}
+			if (DebrisIsNear(i,loc,area)=="UP")
+ 		 	{
+ 				return UP;
+ 			}
+			if (DebrisIsNear(i,loc,area)=="RIGHT")
+			{
+				return RIGHT;
 			}
 			//if there is one robot there are more options
 			if (NUM==1)
