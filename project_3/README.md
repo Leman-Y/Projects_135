@@ -1,6 +1,4 @@
-# Labs-133-Marinov
-
-project 3:
+# Project 3: 
 This project....
 Involves optimizing a game.
 The game consists of robots collecting debris. Some robots may break down.
